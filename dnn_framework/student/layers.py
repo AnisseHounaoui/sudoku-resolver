@@ -1,17 +1,14 @@
 from dnn_framework import Layer
 import numpy as np
 
+
 class FullyConnectedLayer(Layer):
 
     def __init__(self, n_in, n_out):
         super().__init__()
 
-        self.w = np.random.normal(loc=0.0,
-                                  scale=np.sqrt(2 / (n_in + n_out)),
-                                  size=(n_out, n_in))
-        self.b = np.random.normal(loc=0.0,
-                                  scale=np.sqrt(2 / n_out),
-                                  size=(n_out,))
+        self.w = np.random.normal(loc=0.0, scale=np.sqrt(2 / (n_in + n_out)), size=(n_out, n_in))
+        self.b = np.random.normal(loc=0.0, scale=np.sqrt(2 / n_out), size=(n_out,))
 
     def get_parameters(self):
         """
@@ -20,6 +17,14 @@ class FullyConnectedLayer(Layer):
         :return: A dictionary (str: np.array) of the parameters
         """
         return {'w': self.w, 'b': self.b}
+
+    def get_buffers(self):
+        """
+        This method returns the buffers of the layer.
+        The buffers are not learned by the optimizer.
+        :return: A dictionary (str: np.array) of the buffers
+        """
+        return {}
 
     def forward(self, x):
         """
@@ -86,7 +91,15 @@ class Sigmoid(Layer):
         The parameters are learned by the optimizer.
         :return: A dictionary (str: np.array) of the parameters
         """
-        raise NotImplementedError()
+        return {}
+
+    def get_buffers(self):
+        """
+        This method returns the buffers of the layer.
+        The buffers are not learned by the optimizer.
+        :return: A dictionary (str: np.array) of the buffers
+        """
+        return {}
 
     def forward(self, x):
         """
@@ -94,7 +107,7 @@ class Sigmoid(Layer):
         :param x: The input tensor
         :return: A tuple containing the output value and the cache (y, cache)
         """
-        raise NotImplementedError()
+        return (1 / (1 + np.exp(-x))), {'x': x}
 
     def backward(self, output_grad, cache):
         """
@@ -105,7 +118,10 @@ class Sigmoid(Layer):
                  a dictionary containing the gradient with respect to each parameter indexed with the same key
                  as the get_parameters() dictionary.
         """
-        raise NotImplementedError()
+        # ds = np.exp(-cache['x']) / (1 + np.exp(-cache['x'])) ** 2
+        # return output_grad * ds, {}
+        ds = self.forward(cache['x'])[0] * (1 - self.forward(cache['x'])[0])
+        return output_grad * ds, {}
 
 
 class ReLU(Layer):
@@ -119,7 +135,15 @@ class ReLU(Layer):
         The parameters are learned by the optimizer.
         :return: A dictionary (str: np.array) of the parameters
         """
-        raise NotImplementedError()
+        return {}
+
+    def get_buffers(self):
+        """
+        This method returns the buffers of the layer.
+        The buffers are not learned by the optimizer.
+        :return: A dictionary (str: np.array) of the buffers
+        """
+        return {}
 
     def forward(self, x):
         """
@@ -127,7 +151,7 @@ class ReLU(Layer):
         :param x: The input tensor
         :return: A tuple containing the output value and the cache (y, cache)
         """
-        raise NotImplementedError()
+        return np.where(x > 0, x, 0), {'x': x}
 
     def backward(self, output_grad, cache):
         """
@@ -138,7 +162,7 @@ class ReLU(Layer):
                  a dictionary containing the gradient with respect to each parameter indexed with the same key
                  as the get_parameters() dictionary.
         """
-        raise NotImplementedError()
+        return np.where(cache['x'] > 0, output_grad, 0), {}
 
 
 
