@@ -155,8 +155,6 @@ class Sigmoid(Layer):
                  a dictionary containing the gradient with respect to each parameter indexed with the same key
                  as the get_parameters() dictionary.
         """
-        # ds = np.exp(-cache['x']) / (1 + np.exp(-cache['x'])) ** 2
-        # return output_grad * ds, {}
         ds = self.forward(cache['x'])[0] * (1 - self.forward(cache['x'])[0])
         return output_grad * ds, {}
 
