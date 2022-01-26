@@ -31,5 +31,54 @@ def create_network(checkpoint_path):
     return network
 
 
+def grid_search():
+    lr = [0.01, 0.005, 0.001]
+    batch_size = [64, 256, 512]
+    epochs = [5, 10, 15]
+
+    best_acc = 0
+    best_params = ''
+
+    for rate in lr:
+        for bs in batch_size:
+            for e in epochs:
+                print("Starting " + str(rate)+'_'+str(bs)+'_'+str(e))
+                n = create_network(None)
+                trainer = MnistTrainer(n, rate, e, bs, 'out/'+str(rate)+'_'+str(bs)+'_'+str(e)+'/')
+                trainer.train()
+                acc = trainer._test(trainer._network, trainer._test_dataset_loader)
+                if acc > best_acc:
+                    best_acc = acc
+                    best_params = str(rate)+'_'+str(bs)+'_'+str(e)
+
+    print(best_params)
+    print(best_acc)
+
+
+def validate_trained_models():
+    lr = [0.01, 0.005, 0.001]
+    batch_size = [64, 256, 512]
+    epochs = [5, 10, 15]
+
+    best_acc = 0
+    best_params = ''
+
+    for rate in lr:
+        for bs in batch_size:
+            for e in epochs:
+                n = create_network('out/'+str(rate)+'_'+str(bs)+'_'+str(e)+'/checkpoint_epoch_'+str(e)+'.pkl')
+                trainer = MnistTrainer(n, rate, e, bs, 'out/'+str(rate)+'_'+str(bs)+'_'+str(e)+'/')
+                print('LR: '+ str(rate)+', Batchsize: '+str(bs)+', Nb epochs: '+str(e))
+                acc = trainer._test(trainer._network, trainer._test_dataset_loader)
+
+                if acc > best_acc:
+                    best_acc = acc
+                    best_params = str(rate)+'_'+str(bs)+'_'+str(e)
+    print(best_params)
+    print(best_acc)
+
+
 if __name__ == '__main__':
     main()
+    #grid_search()
+    #validate_trained_models()
